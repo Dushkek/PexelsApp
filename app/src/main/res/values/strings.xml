@@ -1,3 +1,12 @@
 <resources>
     <string name="app_name">Pexels App</string>
+    <string name="lbl_home_screen">Home Screen</string>
+    <string name="lbl_bookmarks_screen">Bookmarks Screen</string>
+    <string name="lbl_details_screen">Details Screen</string>
+    <string name="lbl_search">Search</string>
+    <string name="lbl_no_results_found">No results found</string>
+    <string name="lbl_explore">Explore</string>
+    <string name="lbl_try_again">Try Again</string>
+    <string name="err_network_connection">No network available</string>
+    <string name="err_poor_internet_connection">Poor Internet connection</string>
 </resources>
