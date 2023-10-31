@@ -1,6 +1,5 @@
 package com.adush.pexelsapp.domain
 
-import androidx.lifecycle.LiveData
 import androidx.paging.PagingData
 import com.adush.pexelsapp.domain.model.FeatureCollection
 import com.adush.pexelsapp.domain.model.ImageItem
@@ -14,7 +13,7 @@ interface ImageRepository {
 
     fun getImageListBySearch(query: String): Observable<PagingData<ImageItem>>
 
-    fun getImageItem(id: Int): LiveData<ImageItem>
+    fun getImageById(id: Int): Observable<Response<ImageItem>>
 
     fun addImageItem(imageItem: ImageItem)
 }

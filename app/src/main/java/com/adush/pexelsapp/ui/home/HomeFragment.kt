@@ -10,16 +10,19 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.paging.LoadState
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.adush.pexelsapp.R
 import com.adush.pexelsapp.databinding.FragmentHomeBinding
-import com.adush.pexelsapp.ui.utils.AlertSender
 import com.adush.pexelsapp.ui.PexelsApp
 import com.adush.pexelsapp.ui.adapter.HeadersAdapter
 import com.adush.pexelsapp.ui.adapter.ImageListAdapter
 import com.adush.pexelsapp.ui.adapter.ImagesLoadStateAdapter
+import com.adush.pexelsapp.ui.details.DetailsFragment
+import com.adush.pexelsapp.ui.utils.AlertSender
+import com.adush.pexelsapp.ui.utils.Constants
 import com.adush.pexelsapp.ui.utils.ViewModelFactory
 import com.adush.pexelsapp.ui.utils.simpleScan
 import io.reactivex.Observable
@@ -49,7 +52,7 @@ class HomeFragment : Fragment() {
     }
 
     private val imageListAdapter by lazy {
-        ImageListAdapter(::setupDetailFragment)
+        ImageListAdapter(::setupDetailsFragment)
     }
 
     private val headersAdapter by lazy {
@@ -63,7 +66,7 @@ class HomeFragment : Fragment() {
     }
 
     override fun onAttach(context: Context) {
-          component.inject(this)
+        component.inject(this)
         super.onAttach(context)
     }
 
@@ -156,7 +159,9 @@ class HomeFragment : Fragment() {
         }
     }
 
-    private fun setupDetailFragment() {
+    private fun setupDetailsFragment(id: Int) {
+        val bundle = DetailsFragment.newInstance(id, Constants.MODE_REQUEST)
+        findNavController().navigate(R.id.navigation_details_screen, bundle)
     }
 
     private fun observeFeaturedCollections() {
@@ -197,6 +202,10 @@ class HomeFragment : Fragment() {
     }
 
     private fun createOnQueryTextObservable(): Observable<String?> {
+        var searchViewFocus = false
+        binding.searchView.setOnQueryTextFocusChangeListener { view, hasFocus ->
+            searchViewFocus = hasFocus
+        }
         val onQueryTextObservable = Observable.create { subscriber ->
             binding.searchView.setOnQueryTextListener(object : android.widget.SearchView.OnQueryTextListener {
                 override fun onQueryTextSubmit(query: String?): Boolean {
@@ -205,8 +214,10 @@ class HomeFragment : Fragment() {
                     return true
                 }
 
-                    override fun onQueryTextChange(query: String?): Boolean {
-                    subscriber.onNext(query)
+                override fun onQueryTextChange(query: String?): Boolean {
+                    if (searchViewFocus) {
+                        subscriber.onNext(query)
+                    }
                     return true
                 }
             })

@@ -14,7 +14,7 @@ import com.bumptech.glide.signature.ObjectKey
 import com.facebook.shimmer.Shimmer
 import com.facebook.shimmer.ShimmerDrawable
 
-class ImageListAdapter(private val onImageItemClick: () -> Unit) :
+class ImageListAdapter(private val onImageItemClick: (Int) -> Unit) :
     PagingDataAdapter<ImageItem, ImageListAdapter.ImageListViewHolder>(
         ImageItemDiffCallback
     ) {
@@ -35,7 +35,7 @@ class ImageListAdapter(private val onImageItemClick: () -> Unit) :
                 .into(binding.imageView)
 
             binding.root.setOnClickListener {
-                onImageItemClick()
+                onImageItemClick(imageItem.id)
             }
         }
     }

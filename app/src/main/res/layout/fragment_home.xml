@@ -37,8 +37,6 @@
         android:indeterminate="true"
         android:indeterminateDrawable="@drawable/bg_custom_progress_bar"
         android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/headers_list" />
 
     <androidx.recyclerview.widget.RecyclerView

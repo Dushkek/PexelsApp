@@ -11,5 +11,9 @@
         android:label="@string/lbl_home_screen"
         tools:layout="@layout/fragment_home"/>
 
-
+    <fragment
+        android:id="@+id/navigation_details_screen"
+        android:name="com.adush.pexelsapp.ui.details.DetailsFragment"
+        android:label="@string/lbl_details_screen"
+        tools:layout="@layout/fragment_details"/>
 </navigation>
