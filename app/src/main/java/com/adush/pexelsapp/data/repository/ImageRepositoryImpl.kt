@@ -1,7 +1,6 @@
 package com.adush.pexelsapp.data.repository
 
 import android.annotation.SuppressLint
-import androidx.lifecycle.LiveData
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
@@ -12,6 +11,7 @@ import com.adush.pexelsapp.data.network.configuration.MAPIConfig
 import com.adush.pexelsapp.data.pagingsource.CuratedImagesPagingSource
 import com.adush.pexelsapp.data.pagingsource.SearchImagesPagingSource
 import com.adush.pexelsapp.domain.ImageRepository
+import com.adush.pexelsapp.domain.Response
 import com.adush.pexelsapp.domain.model.FeatureCollection
 import com.adush.pexelsapp.domain.model.ImageItem
 import io.reactivex.Observable
@@ -77,8 +77,31 @@ class ImageRepositoryImpl @Inject constructor(
         ).observable
     }
 
-    override fun getImageItem(id: Int): LiveData<ImageItem> {
-        TODO("Not yet implemented")
+    @SuppressLint("CheckResult")
+    override fun getImageById(id: Int): Observable<Response<ImageItem>> {
+        val getImageById = apiService.getImageById(id)
+
+        val result = SingleSubject.create<Response<ImageItem>>()
+
+        getImageById
+            .subscribeOn(Schedulers.io())
+            .map {
+                mapper.mapImageDtoToEntity(it)
+            }
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe ({ image ->
+                if (image != null) result.onSuccess(Response.Success(image)) else result.onSuccess(Response.Empty)
+            },
+                { e ->
+                    when (e) {
+                        is IOException -> result.onError(e)
+                        is HttpException -> result.onError(e)
+                        else -> result.onSuccess(Response.Error(e.message.toString()))
+                    }
+                }
+            )
+
+        return result.toObservable()
     }
 
 

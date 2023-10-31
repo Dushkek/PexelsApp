@@ -5,9 +5,11 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import androidx.navigation.NavDestination
 import androidx.navigation.findNavController
 import androidx.navigation.ui.setupWithNavController
 import com.adush.pexelsapp.databinding.ActivityMainBinding
@@ -45,6 +47,21 @@ class MainActivity : AppCompatActivity() {
         val navController = findNavController(R.id.nav_host_fragment)
 
         navView.setupWithNavController(navController)
+
+        navController.addOnDestinationChangedListener{ _, destination, _ ->
+                navViewSetVisibility(destination)
+        }
+    }
+
+    private fun navViewSetVisibility(destination: NavDestination){
+        if (destination.id in setOf(
+                R.id.navigation_details_screen
+            )
+        ) {
+            binding.navView.visibility = View.GONE
+        } else {
+            binding.navView.visibility = View.VISIBLE
+        }
     }
 
     private val alertReceiver = object : BroadcastReceiver() {

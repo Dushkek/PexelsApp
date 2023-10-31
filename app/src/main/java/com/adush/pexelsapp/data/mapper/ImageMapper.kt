@@ -22,6 +22,7 @@ class ImageMapper @Inject constructor(){
     fun mapImageDtoToEntity(imageItemDto: ImageItemDto): ImageItem = ImageItem(
         id = imageItemDto.id,
         url = imageItemDto.url,
+        author = imageItemDto.author,
         imageSrc = mapSrcDtoToEntity(imageItemDto.imageSrc),
         name = imageItemDto.name,
         height = imageItemDto.height,

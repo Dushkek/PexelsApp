@@ -2,9 +2,11 @@ package com.adush.pexelsapp.data.network
 
 import com.adush.pexelsapp.data.network.configuration.MAPIConfig
 import com.adush.pexelsapp.data.network.model.collection.FeatureCollectionResponseDto
+import com.adush.pexelsapp.data.network.model.image.ImageItemDto
 import com.adush.pexelsapp.data.network.model.image.ImageResponseDto
 import io.reactivex.Single
 import retrofit2.http.GET
+import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface ApiService {
@@ -27,4 +29,9 @@ interface ApiService {
         @Query("page") page: Int,
         @Query("per_page") perPage: Int
     ): Single<FeatureCollectionResponseDto>
+
+    @GET(MAPIConfig.CERTAIN_IMAGE)
+    fun getImageById(
+        @Path("id") id: Int
+    ): Single<ImageItemDto>
 }

@@ -7,6 +7,7 @@ object MAPIConfig {
     const val CURATED_IMAGES = "curated/"
     const val SEARCH_IMAGES = "search/"
     const val FEATURED_COLLECTIONS_IMAGES = "collections/featured/"
+    const val CERTAIN_IMAGE = "photos/{id}"
 
     const val PER_PAGE_COLLECTIONS_SIZE = 7
     const val PER_PAGE_SIZE = 30

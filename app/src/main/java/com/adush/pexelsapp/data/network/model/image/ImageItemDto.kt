@@ -7,6 +7,8 @@ data class ImageItemDto(
     val id : Int,
     @SerializedName("url")
     val url : String,
+    @SerializedName("photographer")
+    val author : String,
     @SerializedName("src")
     val imageSrc : ImageSrcDto,
     @SerializedName("alt")
