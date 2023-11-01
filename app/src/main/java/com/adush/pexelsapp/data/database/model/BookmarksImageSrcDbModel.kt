@@ -1,7 +1,7 @@
 package com.adush.pexelsapp.data.database.model
 
 
-data class ImageSrcDbModel(
+data class BookmarksImageSrcDbModel(
     val original: String,
     val large2x: String,
     val large: String,

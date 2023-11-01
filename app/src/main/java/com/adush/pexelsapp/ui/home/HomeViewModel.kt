@@ -6,9 +6,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.rxjava2.cachedIn
-import com.adush.pexelsapp.domain.GetFeaturedCollectionsUseCase
-import com.adush.pexelsapp.domain.GetImageListBySearchUseCase
-import com.adush.pexelsapp.domain.GetImageListUseCase
+import com.adush.pexelsapp.domain.usecases.GetFeaturedCollectionsUseCase
+import com.adush.pexelsapp.domain.usecases.GetImageListBySearchUseCase
+import com.adush.pexelsapp.domain.usecases.GetImageListUseCase
 import com.adush.pexelsapp.domain.model.FeatureCollection
 import com.adush.pexelsapp.domain.model.ImageItem
 import io.reactivex.Observable
@@ -50,7 +50,6 @@ class HomeViewModel @Inject constructor(
     fun getImageListObservable(): Observable<PagingData<ImageItem>> {
         return getImageListUseCase()
             .cachedIn(viewModelScope)
-
     }
 
     fun getImageListBySearch(query: String): Observable<PagingData<ImageItem>> {

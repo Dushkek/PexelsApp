@@ -24,6 +24,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.adush.pexelsapp.R
 import com.adush.pexelsapp.databinding.FragmentDetailsBinding
+import com.adush.pexelsapp.domain.model.ImageItem
 import com.adush.pexelsapp.domain.model.ImageItem.Companion.UNDEFINED_ID
 import com.adush.pexelsapp.ui.PexelsApp
 import com.adush.pexelsapp.ui.progress.FragmentWithProgress
@@ -37,7 +38,6 @@ import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
-import io.reactivex.disposables.CompositeDisposable
 import java.io.File
 import java.io.FileOutputStream
 import java.io.OutputStream
@@ -50,10 +50,9 @@ class DetailsFragment : FragmentWithProgress() {
     private val binding
         get() = _binding!!
 
-    private var mDisposable = CompositeDisposable()
-
     private var imageId = UNDEFINED_ID
     private var screenMode = Constants.MODE_UNKNOWN
+    private lateinit var imageItem: ImageItem
 
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
@@ -65,7 +64,6 @@ class DetailsFragment : FragmentWithProgress() {
     private val viewModel by lazy {
         ViewModelProvider(this, viewModelFactory)[DetailsViewModel::class.java]
     }
-
 
     override fun onAttach(context: Context) {
         component.inject(this)
@@ -84,14 +82,17 @@ class DetailsFragment : FragmentWithProgress() {
     ): View? {
         _binding = FragmentDetailsBinding.inflate(inflater, container, false)
         progress = binding.progressBar
+        viewLifecycleOwner.lifecycle.addObserver(viewModel)
         listenProgress(viewModel)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        if(screenMode == Constants.MODE_REQUEST) {
+        if (screenMode == Constants.MODE_REQUEST) {
             getImage()
+        } else if (screenMode == Constants.MODE_DB) {
+            getImageFromDb()
         }
 
         observeErrors()
@@ -100,11 +101,16 @@ class DetailsFragment : FragmentWithProgress() {
         setClickListenerBookmark()
         setClickListenerDownload()
         imageZoom()
+
     }
 
     private fun getImage() {
         viewModel.getImageById(imageId)
-        mDisposable = viewModel.disposable
+        viewModel.getImageFromDb(imageId)
+    }
+
+    private fun getImageFromDb() {
+        viewModel.getImageFromDb(imageId)
     }
 
     private fun observeErrors() {
@@ -119,8 +125,20 @@ class DetailsFragment : FragmentWithProgress() {
         }
     }
 
+    private fun observeActiveBookmark() {
+        viewModel.imageFromDb.observe(viewLifecycleOwner) { imageFromDb ->
+            if(::imageItem.isInitialized) {
+                imageItem.bookmark = true
+                if (imageItem == imageFromDb){
+                    binding.btnToBookmark.isSelected = true
+                }
+            }
+        }
+    }
+
     private fun setExploreVisibility() {
-        binding.exploreLayout.visibility = View.VISIBLE
+        binding.exploreLayout.root.visibility = View.VISIBLE
+        binding.progressBar.visibility = View.GONE
         binding.imageRoot.visibility = View.GONE
         binding.authorName.visibility = View.GONE
     }
@@ -134,12 +152,16 @@ class DetailsFragment : FragmentWithProgress() {
             }
 
             override fun onResourceReady(resource: Drawable, model: Any,target: Target<Drawable>?, dataSource: DataSource, isFirstResource: Boolean): Boolean {
+                observeActiveBookmark()
+                binding.authorName.text = imageItem.author
+                binding.btnDownload.isEnabled = true
+                binding.btnToBookmark.isEnabled = true
                 viewModel.hideProgress()
                 return false
             }
         }
         viewModel.image.observe(viewLifecycleOwner) {
-            binding.authorName.text = it.author
+            imageItem = it
             Glide.with(this)
                 .load(it.imageSrc.original)
                 .placeholder(R.drawable.ic_placeholder)
@@ -164,6 +186,7 @@ class DetailsFragment : FragmentWithProgress() {
     }
 
     private fun setClickListenerBookmark() {
+        binding.btnToBookmark.isEnabled = false
         val animation = AnimationUtils.loadAnimation(requireContext(), R.anim.anim_bounce).apply {
             interpolator = BounceInterpolator()
         }
@@ -171,9 +194,11 @@ class DetailsFragment : FragmentWithProgress() {
             it.startAnimation(animation)
             it.isSelected = !it.isSelected
             if (it.isSelected){
-
+                imageItem.bookmark = true
+                viewModel.addImageToBookmarks(imageItem)
             } else{
-
+                imageItem.bookmark = false
+                viewModel.deleteImageFromBookmarks(imageItem)
             }
         }
     }
@@ -201,8 +226,11 @@ class DetailsFragment : FragmentWithProgress() {
             findNavController().popBackStack()
         }
 
-        binding.exploreText.setOnClickListener {
-            closeFragment()
+        binding.exploreLayout.apply {
+            textErrorExplore.text = requireContext().resources.getString(R.string.lbl_image_not_found)
+            exploreText.setOnClickListener {
+                closeFragment()
+            }
         }
     }
 
@@ -326,7 +354,6 @@ class DetailsFragment : FragmentWithProgress() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-        mDisposable.clear()
     }
 
     companion object {

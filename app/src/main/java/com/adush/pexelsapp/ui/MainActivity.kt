@@ -1,4 +1,4 @@
-package com.adush.pexelsapp
+package com.adush.pexelsapp.ui
 
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -6,18 +6,21 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
 import android.view.View
+import android.view.ViewTreeObserver
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.NavDestination
 import androidx.navigation.findNavController
 import androidx.navigation.ui.setupWithNavController
+import com.adush.pexelsapp.R
 import com.adush.pexelsapp.databinding.ActivityMainBinding
+import com.adush.pexelsapp.ui.home.HomeFragment
 import com.adush.pexelsapp.ui.utils.Constants
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.snackbar.Snackbar
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), HomeFragment.OnDataIsProvideListener {
 
     private val binding: ActivityMainBinding by lazy {
         ActivityMainBinding.inflate(layoutInflater)
@@ -72,5 +75,20 @@ class MainActivity : AppCompatActivity() {
     private fun showAlert(msg: String) {
         val snackBar = Snackbar.make(binding.root, msg, Snackbar.LENGTH_LONG)
         snackBar.show()
+    }
+
+    override fun onDataIsProvideListener(isReady: Boolean) {
+        val content: View = findViewById(android.R.id.content)
+        content.viewTreeObserver.addOnPreDrawListener( object : ViewTreeObserver.OnPreDrawListener {
+                override fun onPreDraw(): Boolean {
+                    return if (isReady) {
+                        content.viewTreeObserver.removeOnPreDrawListener(this)
+                        true
+                    } else {
+                        false
+                    }
+                }
+            }
+        )
     }
 }

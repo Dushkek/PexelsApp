@@ -6,6 +6,6 @@
         android:title="@string/lbl_home_screen"/>
     <item
         android:id="@+id/navigation_bookmarks_screen"
-        android:icon="@drawable/ic_bookmark_nav"
+        android:icon="@drawable/bg_bookmark_btn_selector"
         android:title="@string/lbl_bookmarks_screen"/>
 </menu>

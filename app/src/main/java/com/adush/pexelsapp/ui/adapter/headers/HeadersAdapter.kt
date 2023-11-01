@@ -1,4 +1,4 @@
-package com.adush.pexelsapp.ui.adapter
+package com.adush.pexelsapp.ui.adapter.headers
 
 import android.content.Context
 import android.view.LayoutInflater
@@ -18,7 +18,7 @@ class HeadersAdapter(private val onHeaderClick: (String) -> Unit) :
     private var lastSelectedPosition: Int? = null
     private var lastSelectedItem: FeatureCollection? = null
     private var lastSelectedItemView: ViewItemHeaderBinding? = null
-    private var mViewHolders: ArrayList<HeadersAdapter.HeadersViewHolder> = arrayListOf()
+    private var mViewHolders: ArrayList<HeadersViewHolder> = arrayListOf()
 
     inner class HeadersViewHolder(val binding: ViewItemHeaderBinding) : RecyclerView.ViewHolder(binding.root) {
         fun onBind(header: FeatureCollection, selectedPosition: Int) {

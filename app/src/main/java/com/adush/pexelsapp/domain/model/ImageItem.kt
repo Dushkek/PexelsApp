@@ -7,7 +7,8 @@ data class ImageItem(
     val imageSrc : ImageSrc,
     val name : String,
     val height: Int,
-    val width: Int
+    val width: Int,
+    var bookmark: Boolean = false
 ) {
     companion object{
         const val UNDEFINED_ID = -1

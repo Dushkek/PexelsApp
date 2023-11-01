@@ -5,28 +5,29 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import com.adush.pexelsapp.data.database.model.ImageConverter
-import com.adush.pexelsapp.data.database.model.ImageItemDbModel
+import com.adush.pexelsapp.data.database.model.BookmarksImageConverter
+import com.adush.pexelsapp.data.database.model.BookmarksImageItemDbModel
 
-@Database(entities = [ImageItemDbModel::class], version = 1, exportSchema = false)
-@TypeConverters(ImageConverter::class)
-abstract class ImagesDatabase : RoomDatabase() {
+@Database(entities = [BookmarksImageItemDbModel::class], version = 1, exportSchema = false)
+@TypeConverters(BookmarksImageConverter::class)
+abstract class BookmarksImagesDatabase : RoomDatabase() {
     companion object {
 
-        private var db: ImagesDatabase? = null
+        private var db: BookmarksImagesDatabase? = null
         private const val DB_NAME = "images.db"
         private val LOCK = Any()
 
-        fun getInstance(context: Context): ImagesDatabase {
+        fun getInstance(context: Context): BookmarksImagesDatabase {
             synchronized(LOCK) {
                 db?.let { return it }
                 val instance =
                     Room.databaseBuilder(
                         context,
-                        ImagesDatabase::class.java,
+                        BookmarksImagesDatabase::class.java,
                         DB_NAME
                     )
                         .fallbackToDestructiveMigration()
+                        .allowMainThreadQueries()
                         .build()
                 db = instance
                 return instance
@@ -34,5 +35,5 @@ abstract class ImagesDatabase : RoomDatabase() {
         }
     }
 
-    abstract fun imagesDao(): ImagesDao
+    abstract fun imagesDao(): BookmarksImagesDao
 }

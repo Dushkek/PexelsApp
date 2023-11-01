@@ -1,6 +1,7 @@
 package com.adush.pexelsapp.di
 
 import androidx.lifecycle.ViewModel
+import com.adush.pexelsapp.ui.bookmarks.BookmarksViewModel
 import com.adush.pexelsapp.ui.details.DetailsViewModel
 import com.adush.pexelsapp.ui.home.HomeViewModel
 import dagger.Binds
@@ -18,5 +19,10 @@ interface ViewModelModule {
     @Binds
     @IntoMap
     @ViewModelKey(DetailsViewModel::class)
-    fun bindDetailsFragment(viewModel: DetailsViewModel): ViewModel
+    fun bindDetailsViewModel(viewModel: DetailsViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(BookmarksViewModel::class)
+    fun bindBookmarksViewModel(viewModel: BookmarksViewModel): ViewModel
 }

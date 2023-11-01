@@ -1,4 +1,4 @@
-package com.adush.pexelsapp.ui.adapter
+package com.adush.pexelsapp.ui.adapter.headers
 
 import androidx.recyclerview.widget.DiffUtil
 import com.adush.pexelsapp.domain.model.FeatureCollection

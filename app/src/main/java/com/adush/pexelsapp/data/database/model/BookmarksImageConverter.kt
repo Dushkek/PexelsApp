@@ -6,16 +6,16 @@ import com.google.gson.reflect.TypeToken
 import java.lang.reflect.Type
 
 
-class ImageConverter {
+class BookmarksImageConverter {
 
     @TypeConverter
-    fun stringToSrc(value: String): ImageSrcDbModel {
-        val srcType: Type = object : TypeToken<ImageSrcDbModel?>() {}.type
+    fun stringToSrc(value: String): BookmarksImageSrcDbModel {
+        val srcType: Type = object : TypeToken<BookmarksImageSrcDbModel?>() {}.type
         return Gson().fromJson(value, srcType)
     }
 
     @TypeConverter
-    fun srcToString(src: ImageSrcDbModel): String {
+    fun srcToString(src: BookmarksImageSrcDbModel): String {
         val gson = Gson()
         return gson.toJson(src)
     }

@@ -1,9 +1,9 @@
 package com.adush.pexelsapp.data.pagingsource
 
-import androidx.paging.*
+import androidx.paging.PagingState
 import androidx.paging.rxjava2.RxPagingSource
+import com.adush.pexelsapp.data.database.BookmarksImagesDao
 import com.adush.pexelsapp.data.mapper.ImageMapper
-import com.adush.pexelsapp.data.network.ApiService
 import com.adush.pexelsapp.data.network.configuration.MAPIConfig
 import com.adush.pexelsapp.domain.model.ImageItem
 import io.reactivex.Single
@@ -12,19 +12,19 @@ import retrofit2.HttpException
 import java.io.IOException
 import javax.inject.Inject
 
-class CuratedImagesPagingSource @Inject constructor(
-    private val apiService: ApiService,
+class BookmarksImagesPagingSource @Inject constructor(
+    private val bookmarksImagesDao: BookmarksImagesDao,
     private val mapper: ImageMapper
 ) : RxPagingSource<Int, ImageItem>() {
 
     override fun loadSingle(params: LoadParams<Int>): Single<LoadResult<Int, ImageItem>> {
-        val page = params.key ?: MAPIConfig.STARTING_INDEX_PAGE
-        val response = apiService.getCuratedImages(page, params.loadSize)
+        val page = params.key ?: MAPIConfig.STARTING_DB_INDEX_PAGE
+        val getImagesListFromDb = bookmarksImagesDao.getImagesList(params.loadSize, page * params.loadSize)
 
-        return response
+        return getImagesListFromDb
             .subscribeOn(Schedulers.io())
-            .map { response ->
-                response.images?.map { mapper.mapImageDtoToEntity(it) }
+            .map {dbModelList ->
+                dbModelList.map { mapper.mapBookmarkImageDbToEntity(it) }
             }
             .map {
                 toLoadResult(it, page, params.loadSize)
@@ -52,7 +52,7 @@ class CuratedImagesPagingSource @Inject constructor(
     ): LoadResult<Int, ImageItem> {
         return LoadResult.Page(
             data = list,
-            prevKey = if (position == MAPIConfig.STARTING_INDEX_PAGE) null else position - 1,
+            prevKey = if (position == MAPIConfig.STARTING_DB_INDEX_PAGE) null else position - 1,
             nextKey = if (list.size != paramsSize) null else position + 1
         )
     }

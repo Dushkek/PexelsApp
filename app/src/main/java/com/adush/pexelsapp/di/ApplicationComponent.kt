@@ -1,6 +1,7 @@
 package com.adush.pexelsapp.di
 
 import android.app.Application
+import com.adush.pexelsapp.ui.bookmarks.BookmarksFragment
 import com.adush.pexelsapp.ui.details.DetailsFragment
 import com.adush.pexelsapp.ui.home.HomeFragment
 import dagger.BindsInstance
@@ -13,6 +14,8 @@ interface ApplicationComponent {
     fun inject(fragment: HomeFragment)
 
     fun inject(fragment: DetailsFragment)
+
+    fun inject(fragment: BookmarksFragment)
 
     @Component.Factory
     interface ApplicationComponentFactory {

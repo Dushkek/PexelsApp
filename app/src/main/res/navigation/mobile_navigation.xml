@@ -9,11 +9,33 @@
         android:id="@+id/navigation_home_screen"
         android:name="com.adush.pexelsapp.ui.home.HomeFragment"
         android:label="@string/lbl_home_screen"
-        tools:layout="@layout/fragment_home"/>
+        tools:layout="@layout/fragment_home">
+        <action
+            android:id="@+id/action_navigation_home_screen_to_navigation_details_screen"
+            app:destination="@id/navigation_details_screen"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
 
     <fragment
         android:id="@+id/navigation_details_screen"
         android:name="com.adush.pexelsapp.ui.details.DetailsFragment"
         android:label="@string/lbl_details_screen"
         tools:layout="@layout/fragment_details"/>
+
+    <fragment
+        android:id="@+id/navigation_bookmarks_screen"
+        android:name="com.adush.pexelsapp.ui.bookmarks.BookmarksFragment"
+        android:label="@string/lbl_bookmarks_screen"
+        tools:layout="@layout/fragment_bookmarks">
+        <action
+            android:id="@+id/action_navigation_bookmarks_screen_to_navigation_details_screen"
+            app:destination="@id/navigation_details_screen"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
 </navigation>
