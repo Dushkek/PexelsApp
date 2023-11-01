@@ -1,18 +1,19 @@
-package com.adush.pexelsapp.ui.adapter
+package com.adush.pexelsapp.ui.adapter.images
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.view.animation.AnimationUtils
+import android.view.animation.DecelerateInterpolator
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.adush.pexelsapp.R
 import com.adush.pexelsapp.databinding.ViewItemImageBinding
 import com.adush.pexelsapp.domain.model.ImageItem
+import com.adush.pexelsapp.ui.utils.ShimmerEffect
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.signature.ObjectKey
-import com.facebook.shimmer.Shimmer
-import com.facebook.shimmer.ShimmerDrawable
 
 class ImageListAdapter(private val onImageItemClick: (Int) -> Unit) :
     PagingDataAdapter<ImageItem, ImageListAdapter.ImageListViewHolder>(
@@ -29,12 +30,16 @@ class ImageListAdapter(private val onImageItemClick: (Int) -> Unit) :
             Glide.with(itemView)
                 .load(imageItem.imageSrc.large2x)
                 .apply(requestOptions)
-                .placeholder(getShimmerDrawable())
+                .placeholder(ShimmerEffect.getShimmerDrawable())
                 .error(R.drawable.ic_placeholder)
                 .dontTransform()
                 .into(binding.imageView)
 
+            val animation = AnimationUtils.loadAnimation(itemView.context, R.anim.anim_item).apply {
+                interpolator = DecelerateInterpolator()
+            }
             binding.root.setOnClickListener {
+                it.startAnimation(animation)
                 onImageItemClick(imageItem.id)
             }
         }
@@ -51,19 +56,5 @@ class ImageListAdapter(private val onImageItemClick: (Int) -> Unit) :
 
     override fun onBindViewHolder(holder: ImageListViewHolder, position: Int) {
         getItem(position)?.let { holder.onBind(it) }
-    }
-
-    private fun getShimmerDrawable(): ShimmerDrawable{
-        val shimmer = Shimmer.AlphaHighlightBuilder()
-            .setDuration(1000)
-            .setBaseAlpha(0.8f)
-            .setHighlightAlpha(0.6f)
-            .setDirection(Shimmer.Direction.LEFT_TO_RIGHT)
-            .setAutoStart(true)
-            .build()
-
-        return ShimmerDrawable().apply {
-            setShimmer(shimmer)
-        }
     }
 }

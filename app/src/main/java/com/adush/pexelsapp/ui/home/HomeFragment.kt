@@ -2,9 +2,11 @@ package com.adush.pexelsapp.ui.home
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewTreeObserver
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -17,9 +19,9 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.adush.pexelsapp.R
 import com.adush.pexelsapp.databinding.FragmentHomeBinding
 import com.adush.pexelsapp.ui.PexelsApp
-import com.adush.pexelsapp.ui.adapter.HeadersAdapter
-import com.adush.pexelsapp.ui.adapter.ImageListAdapter
-import com.adush.pexelsapp.ui.adapter.ImagesLoadStateAdapter
+import com.adush.pexelsapp.ui.adapter.headers.HeadersAdapter
+import com.adush.pexelsapp.ui.adapter.images.ImageListAdapter
+import com.adush.pexelsapp.ui.adapter.images.ImagesLoadStateAdapter
 import com.adush.pexelsapp.ui.details.DetailsFragment
 import com.adush.pexelsapp.ui.utils.AlertSender
 import com.adush.pexelsapp.ui.utils.Constants
@@ -65,8 +67,11 @@ class HomeFragment : Fragment() {
         (requireActivity().application as PexelsApp).component
     }
 
+    private var onDataIsProvideListener: OnDataIsProvideListener ?= null
+
     override fun onAttach(context: Context) {
         component.inject(this)
+        onDataIsProvideListener = requireActivity() as OnDataIsProvideListener
         super.onAttach(context)
     }
 
@@ -89,9 +94,7 @@ class HomeFragment : Fragment() {
         observeFeaturedCollectionsError()
         getImageList()
 
-        binding.exploreText.setOnClickListener {
-            searchByHeader("")
-        }
+        setClickListenersExplore()
         binding.tryAgainText.setOnClickListener {
             imageListAdapter.retry()
         }
@@ -108,13 +111,15 @@ class HomeFragment : Fragment() {
         }
 
         imageListAdapter.addLoadStateListener { loadState ->
+            if (loadState.refresh is LoadState.NotLoading) {
+                onDataIsProvideListener!!.onDataIsProvideListener(true)
+            }
             binding.imageList.isVisible = loadState.refresh is LoadState.NotLoading
             binding.progressBar.isVisible = loadState.refresh is LoadState.Loading
-
             binding.tryAgainLayout.isVisible = loadState.refresh is LoadState.Error
 
             val displayEmptyMessage = (loadState.source.refresh is LoadState.NotLoading && loadState.append.endOfPaginationReached && imageListAdapter.itemCount == 0)
-            binding.exploreLayout.isVisible = displayEmptyMessage
+            binding.exploreLayout.root.isVisible = displayEmptyMessage
 
 
             val errorState = when {
@@ -153,6 +158,15 @@ class HomeFragment : Fragment() {
         }
     }
 
+    private fun setClickListenersExplore() {
+        binding.exploreLayout.apply {
+            textErrorExplore.text = requireContext().resources.getString(R.string.lbl_no_results_found)
+            exploreText.setOnClickListener {
+                searchByHeader("")
+            }
+        }
+    }
+
     private fun observeFeaturedCollectionsError(){
         viewModel.errorMessage.observe(viewLifecycleOwner) {
             AlertSender.sendMessage(requireContext(), requireContext().resources.getString(R.string.err_network_connection))
@@ -161,7 +175,7 @@ class HomeFragment : Fragment() {
 
     private fun setupDetailsFragment(id: Int) {
         val bundle = DetailsFragment.newInstance(id, Constants.MODE_REQUEST)
-        findNavController().navigate(R.id.navigation_details_screen, bundle)
+        findNavController().navigate(R.id.action_navigation_home_screen_to_navigation_details_screen, bundle)
     }
 
     private fun observeFeaturedCollections() {
@@ -202,10 +216,6 @@ class HomeFragment : Fragment() {
     }
 
     private fun createOnQueryTextObservable(): Observable<String?> {
-        var searchViewFocus = false
-        binding.searchView.setOnQueryTextFocusChangeListener { view, hasFocus ->
-            searchViewFocus = hasFocus
-        }
         val onQueryTextObservable = Observable.create { subscriber ->
             binding.searchView.setOnQueryTextListener(object : android.widget.SearchView.OnQueryTextListener {
                 override fun onQueryTextSubmit(query: String?): Boolean {
@@ -215,9 +225,7 @@ class HomeFragment : Fragment() {
                 }
 
                 override fun onQueryTextChange(query: String?): Boolean {
-                    if (searchViewFocus) {
-                        subscriber.onNext(query)
-                    }
+                    subscriber.onNext(query)
                     return true
                 }
             })
@@ -251,9 +259,18 @@ class HomeFragment : Fragment() {
             .map { it.refresh }
     }
 
+    override fun onResume() {
+        super.onResume()
+        binding.searchView.setQuery("", false)
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         mDisposable.clear()
         _binding = null
+    }
+
+    interface OnDataIsProvideListener {
+        fun onDataIsProvideListener(isReady: Boolean)
     }
 }

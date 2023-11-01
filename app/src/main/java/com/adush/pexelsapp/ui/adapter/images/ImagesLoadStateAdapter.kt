@@ -1,4 +1,4 @@
-package com.adush.pexelsapp.ui.adapter
+package com.adush.pexelsapp.ui.adapter.images
 
 import android.view.LayoutInflater
 import android.view.ViewGroup

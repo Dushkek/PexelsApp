@@ -5,16 +5,20 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.rxjava2.observable
+import com.adush.pexelsapp.data.database.BookmarksImagesDao
 import com.adush.pexelsapp.data.mapper.ImageMapper
 import com.adush.pexelsapp.data.network.ApiService
 import com.adush.pexelsapp.data.network.configuration.MAPIConfig
+import com.adush.pexelsapp.data.pagingsource.BookmarksImagesPagingSource
 import com.adush.pexelsapp.data.pagingsource.CuratedImagesPagingSource
 import com.adush.pexelsapp.data.pagingsource.SearchImagesPagingSource
 import com.adush.pexelsapp.domain.ImageRepository
 import com.adush.pexelsapp.domain.Response
 import com.adush.pexelsapp.domain.model.FeatureCollection
 import com.adush.pexelsapp.domain.model.ImageItem
+import io.reactivex.Completable
 import io.reactivex.Observable
+import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.SingleSubject
@@ -25,7 +29,9 @@ import javax.inject.Inject
 class ImageRepositoryImpl @Inject constructor(
     private val apiService: ApiService,
     private val mapper: ImageMapper,
-    private val curatedImagesPagingSource: CuratedImagesPagingSource
+    private val bookmarksImagesDao: BookmarksImagesDao,
+    private val curatedImagesPagingSource: CuratedImagesPagingSource,
+    private val bookmarksImagesPagingSource: BookmarksImagesPagingSource
 ) : ImageRepository {
 
     @SuppressLint("CheckResult")
@@ -95,8 +101,8 @@ class ImageRepositoryImpl @Inject constructor(
                 { e ->
                     when (e) {
                         is IOException -> result.onError(e)
-                        is HttpException -> result.onError(e)
-                        else -> result.onSuccess(Response.Error(e.message.toString()))
+                        is HttpException -> result.onSuccess(Response.Error(e.message.toString()))
+                        else -> result.onError(e)
                     }
                 }
             )
@@ -104,9 +110,57 @@ class ImageRepositoryImpl @Inject constructor(
         return result.toObservable()
     }
 
+    @SuppressLint("CheckResult")
+    override fun getImageListFromDb(): Observable<PagingData<ImageItem>> {
+       return Pager(
+           config = setupPagingConfig(),
+           pagingSourceFactory = { bookmarksImagesPagingSource }
+       ).observable
+    }
 
-    override fun addImageItem(imageItem: ImageItem) {
-        TODO("Not yet implemented")
+    @SuppressLint("CheckResult")
+    override fun getImageFromDb(id: Int): Single<Response<ImageItem>> {
+        val getImageFromDb = bookmarksImagesDao.getImage(id)
+
+        val result = SingleSubject.create<Response<ImageItem>>()
+
+        getImageFromDb
+            .subscribeOn(Schedulers.io())
+            .map {
+            mapper.mapBookmarkImageDbToEntity(it)
+            }
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe ({ item ->
+                if (item != null) result.onSuccess(Response.Success(item)) else result.onSuccess(Response.Empty)
+            },
+                { e ->
+                    when (e) {
+                        is IOException -> result.onSuccess(Response.Error(e.message.toString()))
+                        is HttpException -> result.onError(e)
+                        else -> result.onSuccess(Response.Error(e.message.toString()))
+                    }
+                }
+            )
+
+        return result
+    }
+
+    override fun addImageItemToDb(imageItem: ImageItem): Completable {
+        val item = mapper.mapEntityToBookmarkImageDb(imageItem)
+        val addImageItemToDb = bookmarksImagesDao.insertImage(item)
+
+        return addImageItemToDb
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+    }
+
+    override fun deleteImageItemFromDb(imageItem: ImageItem): Completable {
+        val item = mapper.mapEntityToBookmarkImageDb(imageItem)
+        val deleteImageItemFromDb = bookmarksImagesDao.deleteImage(item)
+
+        return deleteImageItemFromDb
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
     }
 
     private fun setupPagingConfig(): PagingConfig = PagingConfig(

@@ -1,6 +1,7 @@
 package com.adush.pexelsapp.data.mapper
 
-import com.adush.pexelsapp.data.database.model.ImageSrcDbModel
+import com.adush.pexelsapp.data.database.model.BookmarksImageItemDbModel
+import com.adush.pexelsapp.data.database.model.BookmarksImageSrcDbModel
 import com.adush.pexelsapp.data.network.model.collection.FeatureCollectionDto
 import com.adush.pexelsapp.data.network.model.image.ImageItemDto
 import com.adush.pexelsapp.data.network.model.image.ImageSrcDto
@@ -40,14 +41,47 @@ class ImageMapper @Inject constructor(){
         tiny = imageSrcDto.tiny
     )
 
-    private fun mapSrcDbModelToEntity(imageSrcDbModel: ImageSrcDbModel): ImageSrc = ImageSrc(
-        original = imageSrcDbModel.original,
-        large2x = imageSrcDbModel.large2x,
-        large = imageSrcDbModel.large,
-        medium = imageSrcDbModel.medium,
-        small= imageSrcDbModel.small,
-        portrait = imageSrcDbModel.portrait,
-        landscape = imageSrcDbModel.landscape,
-        tiny = imageSrcDbModel.tiny
+    fun mapBookmarkImageDbToEntity(bookmarksImageItemDbModel: BookmarksImageItemDbModel): ImageItem = ImageItem(
+        id = bookmarksImageItemDbModel.id,
+        url = bookmarksImageItemDbModel.url,
+        author = bookmarksImageItemDbModel.author,
+        imageSrc = mapSrcDbModelToEntity(bookmarksImageItemDbModel.imageSrc),
+        name = bookmarksImageItemDbModel.name,
+        height = bookmarksImageItemDbModel.height,
+        width = bookmarksImageItemDbModel.width,
+        bookmark = bookmarksImageItemDbModel.bookmark
+    )
+
+    private fun mapSrcDbModelToEntity(bookmarksImageSrcDbModel: BookmarksImageSrcDbModel): ImageSrc = ImageSrc(
+        original = bookmarksImageSrcDbModel.original,
+        large2x = bookmarksImageSrcDbModel.large2x,
+        large = bookmarksImageSrcDbModel.large,
+        medium = bookmarksImageSrcDbModel.medium,
+        small= bookmarksImageSrcDbModel.small,
+        portrait = bookmarksImageSrcDbModel.portrait,
+        landscape = bookmarksImageSrcDbModel.landscape,
+        tiny = bookmarksImageSrcDbModel.tiny
+    )
+
+    fun mapEntityToBookmarkImageDb(imageItem: ImageItem): BookmarksImageItemDbModel = BookmarksImageItemDbModel(
+        id = imageItem.id,
+        url = imageItem.url,
+        author = imageItem.author,
+        imageSrc = mapSrcEntityToDbModel(imageItem.imageSrc),
+        name = imageItem.name,
+        height = imageItem.height,
+        width = imageItem.width,
+        bookmark = imageItem.bookmark
+    )
+
+    private fun mapSrcEntityToDbModel(imageSrc: ImageSrc): BookmarksImageSrcDbModel = BookmarksImageSrcDbModel(
+        original = imageSrc.original,
+        large2x = imageSrc.large2x,
+        large = imageSrc.large,
+        medium = imageSrc.medium,
+        small= imageSrc.small,
+        portrait = imageSrc.portrait,
+        landscape = imageSrc.landscape,
+        tiny = imageSrc.tiny
     )
 }

@@ -12,6 +12,7 @@ object MAPIConfig {
     const val PER_PAGE_COLLECTIONS_SIZE = 7
     const val PER_PAGE_SIZE = 30
     const val STARTING_INDEX_PAGE = 1
+    const val STARTING_DB_INDEX_PAGE = 0
 
     const val PREFETCH_DISTANCE = 3
 }

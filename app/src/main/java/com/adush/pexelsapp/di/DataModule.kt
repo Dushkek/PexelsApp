@@ -1,6 +1,8 @@
 package com.adush.pexelsapp.di
 
 import android.app.Application
+import com.adush.pexelsapp.data.database.BookmarksImagesDao
+import com.adush.pexelsapp.data.database.BookmarksImagesDatabase
 import com.adush.pexelsapp.data.network.ApiFactory
 import com.adush.pexelsapp.data.network.ApiService
 import com.adush.pexelsapp.data.repository.ImageRepositoryImpl
@@ -22,6 +24,12 @@ interface DataModule {
         @ApplicationScope
         fun provideApiService(application: Application): ApiService {
             return ApiFactory().getApiService(application)
+        }
+
+        @Provides
+        @ApplicationScope
+        fun provideBookmarksImagesDao(application: Application): BookmarksImagesDao {
+            return BookmarksImagesDatabase.getInstance(application).imagesDao()
         }
     }
 }

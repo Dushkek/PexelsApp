@@ -1,5 +1,6 @@
-package com.adush.pexelsapp.domain
+package com.adush.pexelsapp.domain.usecases
 
+import com.adush.pexelsapp.domain.ImageRepository
 import javax.inject.Inject
 
 class GetFeaturedCollectionsUseCase @Inject constructor(
